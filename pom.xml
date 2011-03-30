@@ -10,6 +10,13 @@
   <artifactId>sisu-sitebricks</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <description>Commons Utilities for Sisu-based Sitebricks Webapps</description>
+  
+  <scm>
+    <connection>scm:git:git@github.com:sonatype/sisu-sitebricks.git</connection>
+    <developerConnection>scm:git:git@github.com:sonatype/sisu-sitebricks.git</developerConnection>
+    <url>http://github.com/sonatype/sisu-sitebricks</url>
+  </scm>  
+  
   <dependencies>
     <dependency>
       <groupId>org.sonatype.sisu</groupId>
