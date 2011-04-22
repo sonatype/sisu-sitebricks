@@ -33,7 +33,10 @@ public class SisuServletContextListener
         //        
         injector = (Injector) servletContextEvent.getServletContext().getAttribute( INJECTOR_KEY );
         
-        logger = injector.getInstance( Logger.class );
+        if( injector != null )
+        {
+            logger = injector.getInstance( Logger.class );
+        }
         
         super.contextInitialized( servletContextEvent );        
     }
@@ -49,10 +52,15 @@ public class SisuServletContextListener
         }
         
         installModules( modules );
-        for( Module m : modules )
+        
+        if( logger != null )
         {
-            logger.info( "Installing module from SisuServletContextListener: " + m );
-        }        
+            for( Module m : modules )
+            {
+                logger.info( "Installing module from SisuServletContextListener: " + m );
+            }
+        }
+        
         return Guice.createInjector( new WireModule( modules ) );
     }
     
