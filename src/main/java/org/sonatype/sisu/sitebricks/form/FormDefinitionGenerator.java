@@ -1,4 +1,4 @@
-package org.sonatype.sitebricks.form;
+package org.sonatype.sisu.sitebricks.form;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

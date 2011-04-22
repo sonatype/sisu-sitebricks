@@ -1,4 +1,4 @@
-package org.sonatype.sitebricks.form;
+package org.sonatype.sisu.sitebricks.form;
 
 //
 // A form field might need to be adapted for a target system, but for now we'll focus on getting

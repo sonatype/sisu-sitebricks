@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.ServletContextEvent;
 
+import org.slf4j.Logger;
 import org.sonatype.guice.bean.binders.WireModule;
 
 import com.google.inject.Guice;
@@ -19,7 +20,9 @@ public class SisuServletContextListener
     
     private List<Module> modules;
 
-    private Injector injector;        
+    private Injector injector;  
+    
+    private Logger logger;
     
     @Override
     public void contextInitialized( ServletContextEvent servletContextEvent )
@@ -29,6 +32,8 @@ public class SisuServletContextListener
         // our injector created elsewhere, say from a testing environment, a new one will be created and cause inconsistencies.
         //        
         injector = (Injector) servletContextEvent.getServletContext().getAttribute( INJECTOR_KEY );
+        
+        logger = injector.getInstance( Logger.class );
         
         super.contextInitialized( servletContextEvent );        
     }
@@ -46,7 +51,7 @@ public class SisuServletContextListener
         installModules( modules );
         for( Module m : modules )
         {
-            System.out.println( "Installing module from SisuServletContextListener: " + m );
+            logger.info( "Installing module from SisuServletContextListener: " + m );
         }        
         return Guice.createInjector( new WireModule( modules ) );
     }

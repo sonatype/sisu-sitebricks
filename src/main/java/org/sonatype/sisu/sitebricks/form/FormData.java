@@ -1,4 +1,4 @@
-package org.sonatype.sitebricks.form;
+package org.sonatype.sisu.sitebricks.form;
 
 public @interface FormData
 {
