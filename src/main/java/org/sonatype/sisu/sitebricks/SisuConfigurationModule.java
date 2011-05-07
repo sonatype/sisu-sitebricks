@@ -16,6 +16,7 @@ public class SisuConfigurationModule
     extends AbstractModule
 {
     private File webAppDirectory;
+
     private String applicationId;
 
     public SisuConfigurationModule( File baseDirectory, String application )
@@ -28,20 +29,20 @@ public class SisuConfigurationModule
     protected void configure()
     {
         String basePropertyName = applicationId + ".properties";
-        
+
         String mode = System.getProperty( "appMode" );
-        
+
         if ( mode == null )
         {
-            mode = "prod";      
-        }        
-        
+            mode = "prod";
+        }
+
         String runtimeProperties = basePropertyName + "." + mode;
 
         Properties applicationConfigurationProperties = new Properties();
 
         File propertiesFile = new File( new File( webAppDirectory, "WEB-INF" ), runtimeProperties );
-                            
+
         if ( propertiesFile.exists() )
         {
             try
@@ -49,7 +50,7 @@ public class SisuConfigurationModule
                 applicationConfigurationProperties.load( new FileInputStream( propertiesFile ) );
             }
             catch ( FileNotFoundException e )
-            {                    
+            {
             }
             catch ( IOException e )
             {
@@ -75,12 +76,24 @@ public class SisuConfigurationModule
         // Derived properties
         //
         String applicationDirection = System.getProperty( "application.data.directory" );
-        
+
         if ( applicationDirection != null )
         {
-            applicationConfigurationProperties.setProperty( "application.data.directory", System.getProperty( "application.data.directory" ) );
+            applicationConfigurationProperties.setProperty( "application.data.directory",
+                System.getProperty( "application.data.directory" ) );
         }
-        
+
+        Properties sysProperties = System.getProperties();
+        // copy System user properties
+        for ( Map.Entry<Object, Object> sysProperty : sysProperties.entrySet() )
+        {
+            String key = (String) sysProperty.getKey();
+            if ( key.startsWith( "user." ) && !applicationConfigurationProperties.containsKey( key ) )
+            {
+                applicationConfigurationProperties.setProperty( key, (String) sysProperty.getValue() );
+            }
+        }
+
         if ( !applicationConfigurationProperties.isEmpty() )
         {
             bind( ParameterKeys.PROPERTIES ).toInstance( (Map) applicationConfigurationProperties );
@@ -90,6 +103,6 @@ public class SisuConfigurationModule
             //
             // We should bail because the app is not going to work otherwise
             //
-        }            
+        }
     }
 }
