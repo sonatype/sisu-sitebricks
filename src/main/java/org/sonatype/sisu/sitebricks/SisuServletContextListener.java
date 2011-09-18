@@ -18,7 +18,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 public class SisuServletContextListener extends GuiceServletContextListener {
   
   public static final String INJECTOR_KEY = "@INJECTOR";
-  private List<Module> modules;
+  public static List<Module> modules;
   private Injector injector;
   private Logger logger;
   private File webappDirectory;  
@@ -37,10 +37,17 @@ public class SisuServletContextListener extends GuiceServletContextListener {
     if (injector != null) {
       logger = injector.getInstance(Logger.class);
     }
-
+        
     super.contextInitialized(servletContextEvent);
   }
-
+  
+  protected void onInjectorConstruction(Injector injector) {
+    //
+    // At this point the Injector has been created so we can use it for anything
+    // we need before the application starts up.
+    //
+  }
+  
   protected Injector getInjector() {
     //
     // If an injector has been added to the servlet context then the client has decided they have what they need already.
@@ -57,7 +64,9 @@ public class SisuServletContextListener extends GuiceServletContextListener {
       }
     }
 
-    return Guice.createInjector(Stage.DEVELOPMENT, new WireModule(modules));
+    Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new WireModule(modules));    
+    onInjectorConstruction(injector);    
+    return injector;
   }
 
   protected void installModules(List<Module> modules) {
@@ -76,7 +85,7 @@ public class SisuServletContextListener extends GuiceServletContextListener {
     }
     modules.add(module);
   }
-  
+    
   protected File getWebappDirectory() {
     return webappDirectory;
   }
