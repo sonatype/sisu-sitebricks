@@ -13,72 +13,56 @@ import org.sonatype.guice.bean.binders.ParameterKeys;
 import com.google.inject.AbstractModule;
 
 public class SisuConfigurationModule extends AbstractModule {
-  private File webAppDirectory;
-
+  private File configurationDirectory;
   private String applicationId;
 
-  public SisuConfigurationModule(File baseDirectory, String application) {
-    this.webAppDirectory = baseDirectory;
-    this.applicationId = application;
+  public SisuConfigurationModule(File configurationDirectory, String applicationId) {
+    this.configurationDirectory = configurationDirectory;
+    this.applicationId = applicationId;
   }
 
   @Override
   protected void configure() {
     String basePropertyName = applicationId + ".properties";
-
+    System.out.println(basePropertyName);
     String mode = System.getProperty("appMode");
-
     if (mode == null) {
-      mode = "prod";
+      mode = "dev";
     }
 
     String runtimeProperties = basePropertyName + "." + mode;
+    System.out.println(runtimeProperties);
+    Properties properties = new Properties();
+    File propertiesFile = new File(configurationDirectory, runtimeProperties);
 
-    Properties applicationConfigurationProperties = new Properties();
-
-    File propertiesFile = new File(new File(webAppDirectory, "WEB-INF"), runtimeProperties);
-
+    System.out.println(propertiesFile);
+    
     if (propertiesFile.exists()) {
+      System.out.println("Loading configuration properties: " + propertiesFile);
       try {
-        applicationConfigurationProperties.load(new FileInputStream(propertiesFile));
+        properties.load(new FileInputStream(propertiesFile));        
+        System.out.println("Properties we have loaded:");
+        System.out.println();
+        Map<String,String> m = (Map) properties;
+        for(String key: m.keySet()) {
+          System.out.println(key + " ==> " + m.get(key));
+        }
+        System.out.println();
       } catch (FileNotFoundException e) {
       } catch (IOException e) {
       }
     } else {
       try {
         InputStream is = getClass().getClassLoader().getResourceAsStream(basePropertyName);
-
         if (is != null) {
-          applicationConfigurationProperties.load(is);
+          properties.load(is);
         }
       } catch (IOException e) {
       }
     }
 
-    //
-    // Derived properties
-    //
-    String applicationDirection = System.getProperty("application.data.directory");
-
-    if (applicationDirection != null) {
-      applicationConfigurationProperties.setProperty("application.data.directory", System.getProperty("application.data.directory"));
-    }
-
-    Properties sysProperties = System.getProperties();
-    // copy System user properties
-    for (Map.Entry<Object, Object> sysProperty : sysProperties.entrySet()) {
-      String key = (String) sysProperty.getKey();
-      if (key.startsWith("user.") && !applicationConfigurationProperties.containsKey(key)) {
-        applicationConfigurationProperties.setProperty(key, (String) sysProperty.getValue());
-      }
-    }
-
-    if (!applicationConfigurationProperties.isEmpty()) {
-      bind(ParameterKeys.PROPERTIES).toInstance((Map) applicationConfigurationProperties);
-    } else {
-      //
-      // We should bail because the app is not going to work otherwise
-      //
+    if (!properties.isEmpty()) {
+      bind(ParameterKeys.PROPERTIES).toInstance((Map) properties);
     }
   }
 }

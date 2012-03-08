@@ -1,20 +1,24 @@
 package org.sonatype.sisu.sitebricks;
 
-import com.google.sitebricks.SitebricksModule;
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
-public class SisuSitebricksModule
-    extends SitebricksModule
-{
-    private Package packageToScanForServices;
-    
-    public SisuSitebricksModule( Package packageToScanForServices )
-    {
-        this.packageToScanForServices = packageToScanForServices;
-    }
-    
-    @Override
-    protected void configureSitebricks()
-    {
-        scan( packageToScanForServices );
-    }
+import com.google.sitebricks.SitebricksModule;
+import com.google.sitebricks.headless.Reply;
+import com.google.sitebricks.headless.Request;
+import com.google.sitebricks.routing.ServiceAction;
+
+public class SisuSitebricksModule extends SitebricksModule {
+
+  //
+  // TODO: This needs to be radically simplified
+  //
+  @SuppressWarnings("unchecked")
+  protected void serveAt(String path, Class<? extends Annotation> httpMethod, final String response) {
+    at(path).perform(new ServiceAction() {
+      public Reply<?> call(Request request, Map<String, String> pathFragments) {
+        return Reply.with(response);
+      }
+    }).on(httpMethod);
+  }
 }
