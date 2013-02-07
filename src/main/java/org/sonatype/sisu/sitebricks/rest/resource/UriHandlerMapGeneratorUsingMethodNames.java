@@ -22,8 +22,6 @@ import com.google.sitebricks.http.Put;
 // allow the method names for CRUD operations to be configurable
 // validation that methods for CRUD operation have the right number of parameters
 
-@Singleton
-@Named("methodNames")
 public class UriHandlerMapGeneratorUsingMethodNames implements UriHandlerMapGenerator {
 
   @Inject Logger logger;

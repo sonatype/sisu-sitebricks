@@ -12,7 +12,16 @@ import org.sonatype.guice.bean.binders.ParameterKeys;
 
 import com.google.inject.AbstractModule;
 
+/**
+ * Attempt to load a configuration for this application from a properties file. First we attempt to read
+ * the properties from the file system, and if that fails we attempt to read the properties from
+ * the classpath.
+ * 
+ * @author jvanzyl
+ */
+
 public class SisuConfigurationModule extends AbstractModule {
+  
   private File configurationDirectory;
   private String applicationId;
 
@@ -23,42 +32,37 @@ public class SisuConfigurationModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    String basePropertyName = applicationId + ".properties";
-    System.out.println(basePropertyName);
-    String mode = System.getProperty("appMode");
-    if (mode == null) {
-      mode = "dev";
-    }
-
-    String runtimeProperties = basePropertyName + "." + mode;
-    System.out.println(runtimeProperties);
+    String propertiesFileName = applicationId + ".properties";
     Properties properties = new Properties();
-    File propertiesFile = new File(configurationDirectory, runtimeProperties);
+    File propertiesFile = new File(configurationDirectory, propertiesFileName);
 
-    System.out.println(propertiesFile);
-    
     if (propertiesFile.exists()) {
-      System.out.println("Loading configuration properties: " + propertiesFile);
       try {
-        properties.load(new FileInputStream(propertiesFile));        
-        System.out.println("Properties we have loaded:");
-        System.out.println();
-        Map<String,String> m = (Map) properties;
-        for(String key: m.keySet()) {
-          System.out.println(key + " ==> " + m.get(key));
-        }
-        System.out.println();
+        properties.load(new FileInputStream(propertiesFile));     
       } catch (FileNotFoundException e) {
       } catch (IOException e) {
       }
     } else {
       try {
-        InputStream is = getClass().getClassLoader().getResourceAsStream(basePropertyName);
+        InputStream is = getClass().getClassLoader().getResourceAsStream(propertiesFileName);
         if (is != null) {
           properties.load(is);
         }
       } catch (IOException e) {
       }
+    }
+    
+    // This should be in a proviso module
+    properties.setProperty("configDir", configurationDirectory.getAbsolutePath());
+    properties.setProperty("runtimeBaseDirectory", System.getProperty("runtime.home"));
+    properties.setProperty("workDirectory", System.getProperty("workDirectory"));
+    
+    //
+    // Add configuration directory as a property
+    //
+    Map<String,String> m = (Map) properties;
+    for(String key: m.keySet()) {
+      System.out.println(key + " ==> " + m.get(key));
     }
 
     if (!properties.isEmpty()) {

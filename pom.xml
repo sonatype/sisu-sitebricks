@@ -18,14 +18,14 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.sonatype.sisu</groupId>
-      <artifactId>sisu-inject-bean</artifactId>
+      <groupId>org.sonatype.sisu.inject</groupId>
+      <artifactId>guice-bean-containers</artifactId>
       <version>2.3.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.sitebricks</groupId>
       <artifactId>sitebricks</artifactId>
-      <version>0.8.6-SNAPSHOT</version>
+      <version>0.8.6</version>
       <exclusions>
         <exclusion>
           <groupId>com.google.inject</groupId>
